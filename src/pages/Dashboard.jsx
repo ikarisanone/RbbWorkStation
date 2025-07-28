@@ -18,6 +18,9 @@ const Dashboard = () => {
   const { projects, tasks, users } = useData();
   const { user } = useAuth();
 
+  // Supabase user için isim yoksa email göster
+  const userDisplayName = user?.user_metadata?.name || user?.email || user?.id || 'Kullanıcı';
+
   // İstatistikler
   const myTasks = tasks.filter(task => task.assignedTo === user?.id);
   const completedTasks = myTasks.filter(task => task.status === 'done');
@@ -70,8 +73,8 @@ const Dashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Panelim - Proje Kalkanı</title>
-        <meta name="description" content="Proje Kalkanı ana panel sayfası. Görevlerinizi ve projelerinizi takip edin." />
+        <title>Panelim - Rbb Work Station</title>
+        <meta name="description" content="Rbb Work Station ana panel sayfası. Görevlerinizi ve projelerinizi takip edin." />
       </Helmet>
 
       <div className="space-y-6">
@@ -84,7 +87,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">
-                Hoş geldin, {user?.name}! 👋
+                Hoş geldin, {userDisplayName}! 👋
               </h1>
               <p className="text-gray-400">
                 Bugün {myTasks.length} görevin var. Harika iş çıkarıyorsun!

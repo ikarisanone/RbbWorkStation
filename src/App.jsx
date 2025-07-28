@@ -21,7 +21,7 @@ function App() {
       <DataProvider>
         <Router>
           <Helmet>
-            <title>Proje Kalkanı - Güvenli Proje Yönetimi</title>
+            <title>Rbb Work Station - Güvenli Proje Yönetimi</title>
             <meta name="description" content="Yüksek güvenlikli, esnek rol yönetimi ile donatılmış modern proje yönetimi platformu. Asana tarzında güçlü özellikler." />
           </Helmet>
           

@@ -134,7 +134,7 @@ const AuditLog = () => {
   return (
     <>
       <Helmet>
-        <title>Güvenlik Kayıtları - Proje Kalkanı</title>
+        <title>Güvenlik Kayıtları - Rbb Work Station</title>
         <meta name="description" content="Sistem güvenlik kayıtlarını görüntüleyin ve analiz edin. Kullanıcı aktivitelerini takip edin." />
       </Helmet>
 

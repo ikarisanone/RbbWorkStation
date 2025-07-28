@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 
 const LoginPage = () => {
-  const { user, login } = useAuth();
+  const { user, signIn } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -23,11 +23,10 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
     try {
-      await login(formData.email, formData.password);
+      await signIn(formData.email, formData.password);
     } catch (error) {
-      console.error('Giriş hatası:', error);
+      // Hata zaten toast ile gösteriliyor
     } finally {
       setLoading(false);
     }
@@ -40,24 +39,11 @@ const LoginPage = () => {
     }));
   };
 
-  const demoAccounts = [
-    { email: 'admin@projekalkan.com', password: 'Admin123!', role: 'Süper Admin' },
-    { email: 'yonetici@projekalkan.com', password: 'Yonetici123!', role: 'Yönetici' },
-    { email: 'uye@projekalkan.com', password: 'Uye123!', role: 'Ekip Üyesi' }
-  ];
-
-  const fillDemoAccount = (account) => {
-    setFormData({
-      email: account.email,
-      password: account.password
-    });
-  };
-
   return (
     <>
       <Helmet>
-        <title>Giriş Yap - Proje Kalkanı</title>
-        <meta name="description" content="Proje Kalkanı güvenli proje yönetimi platformuna giriş yapın." />
+        <title>Giriş Yap - Rbb Work Station</title>
+        <meta name="description" content="Rbb Work Station güvenli proje yönetimi platformuna giriş yapın." />
       </Helmet>
 
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -79,7 +65,7 @@ const LoginPage = () => {
                 <Shield className="w-8 h-8 text-white" />
               </motion.div>
               
-              <h1 className="text-3xl font-bold text-white mb-2">Proje Kalkanı</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">Rbb Work Station</h1>
               <p className="text-gray-400">Güvenli Proje Yönetimi Platformu</p>
             </div>
 
@@ -96,7 +82,7 @@ const LoginPage = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="ornek@projekalkan.com"
+                    placeholder="ornek@rbbworkstation.com"
                     className="pl-10 bg-white/10 border-white/20 text-white placeholder-gray-400"
                     required
                   />
@@ -143,28 +129,6 @@ const LoginPage = () => {
                 )}
               </Button>
             </form>
-
-            {/* Demo Hesaplar */}
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <p className="text-sm text-gray-400 text-center mb-4">Demo Hesaplar:</p>
-              <div className="space-y-2">
-                {demoAccounts.map((account, index) => (
-                  <button
-                    key={index}
-                    onClick={() => fillDemoAccount(account)}
-                    className="w-full text-left p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10"
-                  >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm text-white font-medium">{account.role}</p>
-                        <p className="text-xs text-gray-400">{account.email}</p>
-                      </div>
-                      <span className="text-xs text-blue-400">Kullan</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* Güvenlik Bilgisi */}
             <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">

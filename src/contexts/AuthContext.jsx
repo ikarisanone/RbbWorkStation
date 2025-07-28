@@ -1,118 +1,104 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { toast } from '@/components/ui/use-toast';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import { useToast } from '@/components/ui/use-toast';
 
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+const AuthContext = createContext(undefined);
 
 export const AuthProvider = ({ children }) => {
+  const { toast } = useToast();
+
   const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const savedUser = localStorage.getItem('proje_kalkani_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+  const handleSession = useCallback(async (session) => {
+    setSession(session);
+    setUser(session?.user ?? null);
     setLoading(false);
   }, []);
 
-  const login = async (email, password) => {
-    try {
-      // Demo kullanıcıları
-      const demoUsers = [
-        {
-          id: '1',
-          email: 'admin@projekalkan.com',
-          password: 'Admin123!',
-          name: 'Süper Admin',
-          role: 'super_admin',
-          title: 'Sistem Yöneticisi',
-          avatar: null,
-          permissions: ['all']
-        },
-        {
-          id: '2',
-          email: 'yonetici@projekalkan.com',
-          password: 'Yonetici123!',
-          name: 'Proje Yöneticisi',
-          role: 'admin',
-          title: 'Ekip Lideri',
-          avatar: null,
-          permissions: ['create_project', 'edit_project', 'assign_users', 'create_task', 'edit_task', 'assign_task', 'change_status', 'add_file', 'comment', 'view_reports']
-        },
-        {
-          id: '3',
-          email: 'uye@projekalkan.com',
-          password: 'Uye123!',
-          name: 'Ekip Üyesi',
-          role: 'member',
-          title: 'Yazılım Geliştirici',
-          avatar: null,
-          permissions: ['create_task', 'edit_task', 'change_status', 'add_file', 'comment']
-        }
-      ];
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      handleSession(session);
+    };
 
-      const foundUser = demoUsers.find(u => u.email === email && u.password === password);
-      
-      if (!foundUser) {
-        throw new Error('Geçersiz e-posta veya şifre');
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        handleSession(session);
       }
+    );
 
-      const userWithoutPassword = { ...foundUser };
-      delete userWithoutPassword.password;
+    return () => subscription.unsubscribe();
+  }, [handleSession]);
 
-      setUser(userWithoutPassword);
-      localStorage.setItem('proje_kalkani_user', JSON.stringify(userWithoutPassword));
-      
-      toast({
-        title: "Giriş Başarılı",
-        description: `Hoş geldiniz, ${userWithoutPassword.name}!`,
-      });
-
-      return userWithoutPassword;
-    } catch (error) {
-      toast({
-        title: "Giriş Hatası",
-        description: error.message,
-        variant: "destructive",
-      });
-      throw error;
-    }
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('proje_kalkani_user');
-    toast({
-      title: "Çıkış Yapıldı",
-      description: "Güvenle çıkış yaptınız.",
+  const signUp = useCallback(async (email, password, options) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options,
     });
-  };
 
-  const hasPermission = (permission) => {
-    if (!user) return false;
-    if (user.permissions.includes('all')) return true;
-    return user.permissions.includes(permission);
-  };
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Kayıt Hatası",
+        description: error.message || "Bir şeyler yanlış gitti",
+      });
+    }
 
-  const value = {
+    return { error };
+  }, [toast]);
+
+  const signIn = useCallback(async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Giriş Hatası",
+        description: error.message || "Bir şeyler yanlış gitti",
+      });
+    }
+
+    return { error };
+  }, [toast]);
+
+  const signOut = useCallback(async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Çıkış Hatası",
+        description: error.message || "Bir şeyler yanlış gitti",
+      });
+    }
+
+    return { error };
+  }, [toast]);
+
+  const value = useMemo(() => ({
     user,
-    login,
-    logout,
-    hasPermission,
-    loading
-  };
+    session,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+  }), [user, session, loading, signUp, signIn, signOut]);
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

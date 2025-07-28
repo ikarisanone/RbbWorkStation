@@ -3,15 +3,24 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, FolderOpen, Users, Shield, FileText, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+
+// hasPermission fonksiyonu ekleniyor
+function hasPermission(user, permission) {
+  if (!user || !user.role || !permission) return false;
+  if (user.role === 'super_admin') return true;
+  // Kendi rol-permission kontrolünüzü buraya ekleyin
+  if (user.permissions && Array.isArray(user.permissions)) {
+    return user.permissions.includes(permission);
+  }
+  return false;
+}
+
 const Sidebar = ({
   isOpen,
   onToggle
 }) => {
   const location = useLocation();
-  const {
-    user,
-    hasPermission
-  } = useAuth();
+  const { user } = useAuth();
   const menuItems = [{
     path: '/panel',
     icon: LayoutDashboard,
@@ -43,7 +52,7 @@ const Sidebar = ({
     label: 'Profil',
     permission: null
   }];
-  const filteredMenuItems = menuItems.filter(item => !item.permission || hasPermission(item.permission) || user?.role === 'super_admin');
+  const filteredMenuItems = menuItems.filter(item => !item.permission || hasPermission(user, item.permission) || user?.role === 'super_admin');
   return <motion.div initial={{
     width: isOpen ? 280 : 80
   }} animate={{
