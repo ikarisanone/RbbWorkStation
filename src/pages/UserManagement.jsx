@@ -22,7 +22,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 
 const UserManagement = () => {
-  const { users, roles } = useData();
+  // users yerine profiles kullanılıyor
+  const { profiles, roles } = useData();
   const { user: currentUser, hasPermission } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState('all');
@@ -41,9 +42,10 @@ const UserManagement = () => {
     );
   }
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchQuery.toLowerCase());
+  // profiles tablosu ile filtreleme
+  const filteredUsers = profiles.filter(user => {
+    const matchesSearch = user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         user.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = filterRole === 'all' || user.role === filterRole;
     const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
     return matchesSearch && matchesRole && matchesStatus;
@@ -178,7 +180,7 @@ const UserManagement = () => {
             <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white">{users.length}</h3>
+            <h3 className="text-2xl font-bold text-white">{profiles.length}</h3>
             <p className="text-gray-400 text-sm">Toplam Kullanıcı</p>
           </div>
 
@@ -186,7 +188,7 @@ const UserManagement = () => {
             <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white">{users.filter(u => u.status === 'active').length}</h3>
+            <h3 className="text-2xl font-bold text-white">{profiles.filter(u => u.status === 'active').length}</h3>
             <p className="text-gray-400 text-sm">Aktif Kullanıcı</p>
           </div>
 
@@ -194,7 +196,7 @@ const UserManagement = () => {
             <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white">{users.filter(u => u.role === 'admin' || u.role === 'super_admin').length}</h3>
+            <h3 className="text-2xl font-bold text-white">{profiles.filter(u => u.role === 'admin' || u.role === 'super_admin').length}</h3>
             <p className="text-gray-400 text-sm">Yönetici</p>
           </div>
 
@@ -202,7 +204,7 @@ const UserManagement = () => {
             <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center mx-auto mb-4">
               <Calendar className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-white">{users.filter(u => u.lastLogin && new Date(u.lastLogin) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</h3>
+            <h3 className="text-2xl font-bold text-white">{profiles.filter(u => u.lastLogin && new Date(u.lastLogin) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}</h3>
             <p className="text-gray-400 text-sm">Son 7 Gün Aktif</p>
           </div>
         </motion.div>
@@ -238,7 +240,7 @@ const UserManagement = () => {
                     <td className="py-4 px-2">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-semibold text-sm">{user.name.charAt(0)}</span>
+                          <span className="text-white font-semibold text-sm">{user.name?.charAt(0)}</span>
                         </div>
                         <div>
                           <p className="font-medium text-white">{user.name}</p>
@@ -267,7 +269,7 @@ const UserManagement = () => {
                     </td>
                     <td className="py-4 px-2">
                       <span className="text-sm text-gray-400">
-                        {new Date(user.createdAt).toLocaleDateString('tr-TR')}
+                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR') : ''}
                       </span>
                     </td>
                     <td className="py-4 px-2 text-right">

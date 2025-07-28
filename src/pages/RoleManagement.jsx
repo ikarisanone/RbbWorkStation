@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 
 const RoleManagement = () => {
-  const { roles, users } = useData();
+  const { roles, profiles } = useData();
   const { user: currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRole, setSelectedRole] = useState(null);
@@ -93,7 +93,7 @@ const RoleManagement = () => {
   };
 
   const getUserCountByRole = (roleId) => {
-    return users.filter(user => user.role === roleId).length;
+    return profiles.filter(user => user.role === roleId).length;
   };
 
   const getRoleColor = (roleId) => {

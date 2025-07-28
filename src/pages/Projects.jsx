@@ -21,7 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 
 const Projects = () => {
-  const { projects, users } = useData();
+  const { projects, profiles } = useData();
   const { hasPermission } = useAuth();
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,11 +50,11 @@ const Projects = () => {
   };
 
   const getProjectManager = (managerId) => {
-    return users.find(user => user.id === managerId)?.name || 'Bilinmiyor';
+    return profiles.find(user => user.id === managerId)?.name || 'Bilinmiyor';
   };
 
   const getProjectMembers = (memberIds) => {
-    return memberIds.map(id => users.find(user => user.id === id)?.name).filter(Boolean);
+    return memberIds.map(id => profiles.find(user => user.id === id)?.name).filter(Boolean);
   };
 
   const getStatusColor = (status) => {

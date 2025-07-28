@@ -24,7 +24,7 @@ import { toast } from '@/components/ui/use-toast';
 
 const ProjectDetail = () => {
   const { id } = useParams();
-  const { projects, tasks, users } = useData();
+  const { projects, tasks, profiles } = useData();
   const { hasPermission } = useAuth();
   const [viewMode, setViewMode] = useState('kanban');
 
@@ -46,11 +46,11 @@ const ProjectDetail = () => {
   }
 
   const getProjectManager = (managerId) => {
-    return users.find(user => user.id === managerId);
+    return profiles.find(user => user.id === managerId);
   };
 
   const getProjectMembers = (memberIds) => {
-    return memberIds.map(id => users.find(user => user.id === id)).filter(Boolean);
+    return memberIds.map(id => profiles.find(user => user.id === id)).filter(Boolean);
   };
 
   const getTasksByStatus = (status) => {
@@ -93,7 +93,7 @@ const ProjectDetail = () => {
   };
 
   const TaskCard = ({ task }) => {
-    const assignedUser = users.find(u => u.id === task.assignedTo);
+    const assignedUser = profiles.find(u => u.id === task.assignedTo);
     
     return (
       <motion.div
@@ -321,7 +321,7 @@ const ProjectDetail = () => {
                         </div>
                         <div className="text-right text-sm text-gray-400">
                           <p>{new Date(task.dueDate).toLocaleDateString('tr-TR')}</p>
-                          <p>{users.find(u => u.id === task.assignedTo)?.name}</p>
+                          <p>{profiles.find(u => u.id === task.assignedTo)?.name}</p>
                         </div>
                       </div>
                     ))

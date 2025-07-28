@@ -15,7 +15,7 @@ import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
-  const { projects, tasks, users } = useData();
+  const { projects, tasks, profiles } = useData();
   const { user } = useAuth();
 
   // Supabase user için isim yoksa email göster
@@ -54,7 +54,7 @@ const Dashboard = () => {
     },
     {
       title: 'Aktif Kullanıcılar',
-      value: users.filter(u => u.status === 'active').length,
+      value: profiles.filter(u => u.status === 'active').length,
       icon: Users,
       color: 'from-purple-500 to-purple-600',
       change: '+3%'

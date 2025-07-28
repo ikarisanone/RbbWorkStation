@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/lib/supabaseClient';
 
 const Header = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
@@ -48,6 +49,11 @@ const Header = ({ onMenuClick }) => {
       title: "Ayarlar",
       description: "🚧 Bu özellik henüz uygulanmadı—ama merak etme! Bir sonraki istekte talep edebilirsin! 🚀",
     });
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/';
   };
 
   return (
@@ -132,7 +138,7 @@ const Header = ({ onMenuClick }) => {
               <span>Güvenlik Ayarları</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout} className="text-red-400">
+            <DropdownMenuItem onClick={handleLogout} className="text-red-400">
               <LogOut className="w-4 h-4 mr-2" />
               <span>Çıkış Yap</span>
             </DropdownMenuItem>

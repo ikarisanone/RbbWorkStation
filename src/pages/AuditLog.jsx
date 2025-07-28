@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 
 const AuditLog = () => {
-  const { auditLogs, users } = useData();
+  const { auditLogs, profiles } = useData();
   const { user: currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAction, setFilterAction] = useState('all');
@@ -78,7 +78,7 @@ const AuditLog = () => {
   };
 
   const getUserName = (userId) => {
-    const user = users.find(u => u.id === userId);
+    const user = profiles.find(u => u.id === userId);
     return user ? user.name : 'Bilinmeyen Kullanıcı';
   };
 
