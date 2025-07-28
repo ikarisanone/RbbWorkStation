@@ -1,9 +1,0 @@
-## Pages
-- [- Rbb Work Station](/projectdetail): No description available
-- [Giriş Yap - Rbb Work Station](/login): Rbb Work Station güvenli proje yönetimi platformuna giriş yapın.
-- [Güvenlik Kayıtları - Proje Kalkanı](/auditlog): Sistem güvenlik kayıtlarını görüntüleyin ve analiz edin. Kullanıcı aktivitelerini takip edin.
-- [Kullanıcı Yönetimi - Rbb Work Station](/usermanagement): Sistem kullanıcılarını yönetin. Kullanıcı rolleri ve yetkilerini düzenleyin.
-- [Panelim - Rbb Work Station](/dashboard): Rbb Work Station ana panel sayfası. Görevlerinizi ve projelerinizi takip edin.
-- [Profil - Rbb Work Station](/profile): Profil bilgilerinizi görüntüleyin ve düzenleyin. Güvenlik ayarlarınızı yönetin.
-- [Projeler - Rbb Work Station](/projects): Tüm projelerinizi görüntüleyin ve yönetin. Proje durumlarını takip edin.
-- [Rol Yönetimi - Rbb Work Station](/rolemanagement): Sistem rollerini ve yetkilerini yönetin. Özelleştirilebilir rol sistemi.
