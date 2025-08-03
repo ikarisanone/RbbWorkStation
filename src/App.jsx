@@ -12,16 +12,17 @@ import UserManagement from '@/pages/UserManagement';
 import RoleManagement from '@/pages/RoleManagement';
 import AuditLog from '@/pages/AuditLog';
 import Profile from '@/pages/Profile';
+import NotificationsPage from '@/pages/NotificationsPage';
 import Layout from '@/components/Layout';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 function App() {
   return (
-    <AuthProvider>
-      <DataProvider>
-        <Router>
+    <Router>
+      <AuthProvider>
+        <DataProvider>
           <Helmet>
-            <title>Rbb Work Station - Güvenli Proje Yönetimi</title>
+            <title>Proje Kalkanı - Güvenli Proje Yönetimi</title>
             <meta name="description" content="Yüksek güvenlikli, esnek rol yönetimi ile donatılmış modern proje yönetimi platformu. Asana tarzında güçlü özellikler." />
           </Helmet>
           
@@ -41,14 +42,15 @@ function App() {
                 <Route path="roller" element={<RoleManagement />} />
                 <Route path="guvenlik-kayitlari" element={<AuditLog />} />
                 <Route path="profil" element={<Profile />} />
+                <Route path="bildirimler" element={<NotificationsPage />} />
               </Route>
             </Routes>
           </div>
           
           <Toaster />
-        </Router>
-      </DataProvider>
-    </AuthProvider>
+        </DataProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

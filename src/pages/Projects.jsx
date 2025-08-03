@@ -1,31 +1,49 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet';
 import { 
   Plus, 
   Search, 
-  Filter, 
   Grid3X3, 
   List, 
   Calendar,
   Users,
-  Clock,
-  CheckCircle,
-  MoreVertical
+  MoreVertical,
+  Settings,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useData } from '@/contexts/DataContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const Projects = () => {
-  const { projects, profiles } = useData();
-  const { hasPermission } = useAuth();
+  const { projects, users, addProject, deleteProject } = useData();
+  const { user, hasPermission } = useAuth();
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [isAddProjectModalOpen, setAddProjectModalOpen] = useState(false);
+  const [newProjectData, setNewProjectData] = useState({ name: '', description: '' });
 
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -34,12 +52,9 @@ const Projects = () => {
     return matchesSearch && matchesFilter;
   });
 
-  const handleCreateProject = () => {
+  const handleCreateProjectClick = () => {
     if (hasPermission('create_project')) {
-      toast({
-        title: "Yeni Proje",
-        description: "🚧 Bu özellik henüz uygulanmadı—ama merak etme! Bir sonraki istekte talep edebilirsin! 🚀",
-      });
+      setAddProjectModalOpen(true);
     } else {
       toast({
         title: "Yetki Hatası",
@@ -49,12 +64,49 @@ const Projects = () => {
     }
   };
 
-  const getProjectManager = (managerId) => {
-    return profiles.find(user => user.id === managerId)?.name || 'Bilinmiyor';
+  const handleSaveNewProject = () => {
+    if (!newProjectData.name.trim()) {
+      toast({ title: "Hata", description: "Proje adı boş olamaz.", variant: "destructive" });
+      return;
+    }
+    addProject({
+      name: newProjectData.name,
+      description: newProjectData.description,
+      manager: user.id,
+      members: [user.id],
+      status: 'active',
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 1 ay sonrası
+    });
+    setNewProjectData({ name: '', description: '' });
+    setAddProjectModalOpen(false);
   };
 
-  const getProjectMembers = (memberIds) => {
-    return memberIds.map(id => profiles.find(user => user.id === id)?.name).filter(Boolean);
+  const handleProjectSettings = (projectId) => {
+    if (hasPermission('edit_project')) {
+      navigate(`/projeler/${projectId}`);
+    } else {
+      toast({
+        title: "Yetki Hatası",
+        description: "Proje ayarlarına erişim yetkiniz bulunmamaktadır.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteProject = (projectId) => {
+    if (hasPermission('delete_project')) {
+      deleteProject(projectId);
+    } else {
+      toast({
+        title: "Yetki Hatası",
+        description: "Proje silme yetkiniz bulunmamaktadır.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getProjectManager = (managerId) => {
+    return users.find(user => user.id === managerId)?.name || 'Bilinmiyor';
   };
 
   const getStatusColor = (status) => {
@@ -83,7 +135,6 @@ const Projects = () => {
       </Helmet>
 
       <div className="space-y-6">
-        {/* Başlık ve Eylemler */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -94,16 +145,17 @@ const Projects = () => {
             <p className="text-gray-400 mt-1">Tüm projelerinizi görüntüleyin ve yönetin</p>
           </div>
           
-          <Button
-            onClick={handleCreateProject}
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Yeni Proje
-          </Button>
+          {hasPermission('create_project') && (
+            <Button
+              onClick={handleCreateProjectClick}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Yeni Proje
+            </Button>
+          )}
         </motion.div>
 
-        {/* Arama ve Filtreler */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -136,44 +188,30 @@ const Projects = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="icon"
-                onClick={() => setViewMode('grid')}
-              >
+              <Button variant={viewMode === 'grid' ? 'default' : 'ghost'} size="icon" onClick={() => setViewMode('grid')}>
                 <Grid3X3 className="w-4 h-4" />
               </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="icon"
-                onClick={() => setViewMode('list')}
-              >
+              <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="icon" onClick={() => setViewMode('list')}>
                 <List className="w-4 h-4" />
               </Button>
             </div>
           </div>
         </motion.div>
 
-        {/* Proje Listesi */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
           {filteredProjects.length > 0 ? (
-            <div className={viewMode === 'grid' ? 
-              'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 
-              'space-y-4'
-            }>
+            <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
               {filteredProjects.map((project, index) => (
                 <motion.div
                   key={project.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`glass-effect rounded-xl p-6 hover:scale-105 transition-all duration-300 ${
-                    viewMode === 'list' ? 'flex items-center justify-between' : ''
-                  }`}
+                  className={`glass-effect rounded-xl p-6 hover:scale-105 transition-all duration-300 ${viewMode === 'list' ? 'flex items-center justify-between' : ''}`}
                 >
                   <div className={viewMode === 'list' ? 'flex-1' : ''}>
                     <div className="flex items-center justify-between mb-4">
@@ -182,9 +220,27 @@ const Projects = () => {
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
                           {getStatusText(project.status)}
                         </span>
-                        <Button variant="ghost" size="icon" className="w-8 h-8">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
+                        {hasPermission('edit_project') && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="w-8 h-8">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleProjectSettings(project.id)}>
+                                <Settings className="mr-2 h-4 w-4" />
+                                <span>Ayarlar</span>
+                              </DropdownMenuItem>
+                              {hasPermission('delete_project') && (
+                                <DropdownMenuItem onClick={() => handleDeleteProject(project.id)} className="text-red-400">
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  <span>Sil</span>
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
                     </div>
 
@@ -196,16 +252,13 @@ const Projects = () => {
                         <span className="text-white font-medium">{project.progress}%</span>
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
+                        <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style={{ width: `${project.progress}%` }}></div>
                       </div>
 
                       <div className="flex items-center justify-between text-sm text-gray-400">
                         <div className="flex items-center gap-1">
                           <Users className="w-4 h-4" />
-                          <span>{getProjectMembers(project.members).length} üye</span>
+                          <span>{project.members.length} üye</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
@@ -220,51 +273,20 @@ const Projects = () => {
                     </div>
                   </div>
 
-                  {viewMode === 'list' && (
-                    <div className="ml-6">
-                      <Link
-                        to={`/projeler/${project.id}`}
-                        className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
-                      >
-                        Detaylar
-                      </Link>
-                    </div>
-                  )}
-
-                  {viewMode === 'grid' && (
-                    <div className="mt-4 pt-4 border-t border-white/10">
-                      <Link
-                        to={`/projeler/${project.id}`}
-                        className="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 text-center block"
-                      >
-                        Projeyi Görüntüle
-                      </Link>
-                    </div>
-                  )}
+                  <div className={viewMode === 'grid' ? 'mt-4 pt-4 border-t border-white/10' : 'ml-6'}>
+                    <Link to={`/projeler/${project.id}`} className="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300 text-center block">
+                      {viewMode === 'grid' ? 'Projeyi Görüntüle' : 'Detaylar'}
+                    </Link>
+                  </div>
                 </motion.div>
               ))}
             </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="glass-effect rounded-xl p-12 text-center"
-            >
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-10 h-10 text-white" />
-              </div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-effect rounded-xl p-12 text-center">
               <h3 className="text-xl font-bold text-white mb-2">Proje Bulunamadı</h3>
-              <p className="text-gray-400 mb-6">
-                {searchQuery || filterStatus !== 'all' 
-                  ? 'Arama kriterlerinize uygun proje bulunamadı.'
-                  : 'Henüz hiç proje oluşturulmamış.'
-                }
-              </p>
+              <p className="text-gray-400 mb-6">Arama kriterlerinize uygun proje bulunamadı veya henüz proje oluşturulmadı.</p>
               {hasPermission('create_project') && (
-                <Button
-                  onClick={handleCreateProject}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                >
+                <Button onClick={handleCreateProjectClick} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
                   <Plus className="w-4 h-4 mr-2" />
                   İlk Projenizi Oluşturun
                 </Button>
@@ -273,6 +295,35 @@ const Projects = () => {
           )}
         </motion.div>
       </div>
+
+      <Dialog open={isAddProjectModalOpen} onOpenChange={setAddProjectModalOpen}>
+        <DialogContent className="glass-effect">
+          <DialogHeader>
+            <DialogTitle>Yeni Proje Oluştur</DialogTitle>
+            <DialogDescription>
+              Projeniz için gerekli bilgileri girin.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Proje Adı</Label>
+              <Input id="name" value={newProjectData.name} onChange={(e) => setNewProjectData({...newProjectData, name: e.target.value})} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="description">Açıklama</Label>
+              <Textarea id="description" value={newProjectData.description} onChange={(e) => setNewProjectData({...newProjectData, description: e.target.value})} />
+            </div>
+            <div className="grid gap-2">
+              <Label>Oluşturan</Label>
+              <p className="text-sm text-gray-300">{user.name} ({new Date().toLocaleDateString('tr-TR')})</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddProjectModalOpen(false)}>İptal</Button>
+            <Button onClick={handleSaveNewProject}>Kaydet</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

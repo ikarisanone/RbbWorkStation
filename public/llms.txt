@@ -1,0 +1,11 @@
+## Pages
+- [- Proje Kalkanı](/projectdetail): No description available
+- [Ayarlar - Proje Kalkanı](/settings): Uygulama ayarlarını yönetin.
+- [Bildirimler - Proje Kalkanı](/notifications): Uygulama bildirimlerinizi görüntüleyin.
+- [Giriş Yap - Proje Kalkanı](/login): Proje Kalkanı güvenli proje yönetimi platformuna giriş yapın.
+- [Güvenlik Kayıtları - Proje Kalkanı](/auditlog): Sistem güvenlik kayıtlarını görüntüleyin ve analiz edin. Kullanıcı aktivitelerini takip edin.
+- [Kullanıcı Yönetimi - Proje Kalkanı](/usermanagement): Sistem kullanıcılarını yönetin.
+- [Panelim - Proje Kalkanı](/dashboard): Proje Kalkanı ana panel sayfası. Görevlerinizi ve projelerinizi takip edin.
+- [Profilim - Proje Kalkanı](/profile): Kullanıcı profil bilgilerinizi görüntüleyin.
+- [Projeler - Proje Kalkanı](/projects): Tüm projelerinizi görüntüleyin ve yönetin. Proje durumlarını takip edin.
+- [Rol Yönetimi - Proje Kalkanı](/rolemanagement): Sistem rollerini ve yetkilerini yönetin.

@@ -53,7 +53,7 @@ export const toast = ({ ...props }) => {
   toastStore.setState((state) => ({
     ...state,
     toasts: [
-      { ...props, id, dismiss },
+      { ...props, id, dismiss: () => dismiss() }, // dismiss fonksiyonunu prop olarak DOM'a geçirme!
       ...state.toasts,
     ].slice(0, TOAST_LIMIT),
   }))

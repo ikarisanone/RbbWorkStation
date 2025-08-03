@@ -22,7 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/components/ui/use-toast';
 
 const AuditLog = () => {
-  const { auditLogs, profiles } = useData();
+  const { auditLogs, users } = useData();
   const { user: currentUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterAction, setFilterAction] = useState('all');
@@ -70,15 +70,8 @@ const AuditLog = () => {
     return matchesSearch && matchesAction && matchesDate;
   });
 
-  const handleExportLogs = () => {
-    toast({
-      title: "Kayıtları Dışa Aktar",
-      description: "🚧 Bu özellik henüz uygulanmadı—ama merak etme! Bir sonraki istekte talep edebilirsin! 🚀",
-    });
-  };
-
   const getUserName = (userId) => {
-    const user = profiles.find(u => u.id === userId);
+    const user = users.find(u => u.id === userId);
     return user ? user.name : 'Bilinmeyen Kullanıcı';
   };
 
@@ -134,7 +127,7 @@ const AuditLog = () => {
   return (
     <>
       <Helmet>
-        <title>Güvenlik Kayıtları - Rbb Work Station</title>
+        <title>Güvenlik Kayıtları - Proje Kalkanı</title>
         <meta name="description" content="Sistem güvenlik kayıtlarını görüntüleyin ve analiz edin. Kullanıcı aktivitelerini takip edin." />
       </Helmet>
 
@@ -149,14 +142,6 @@ const AuditLog = () => {
             <h1 className="text-3xl font-bold text-white">Güvenlik Kayıtları</h1>
             <p className="text-gray-400 mt-1">Sistem aktivitelerini ve güvenlik olaylarını takip edin</p>
           </div>
-          
-          <Button
-            onClick={handleExportLogs}
-            className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Kayıtları Dışa Aktar
-          </Button>
         </motion.div>
 
         {/* Arama ve Filtreler */}

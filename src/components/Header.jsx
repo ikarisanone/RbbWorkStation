@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Search, 
   Bell, 
-  Settings, 
   LogOut, 
   Menu,
   User,
-  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,16 +15,19 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
+import { useData } from '@/contexts/DataContext';
 import { toast } from '@/components/ui/use-toast';
-import { supabase } from '@/lib/supabaseClient';
 
 const Header = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { notifications } = useData();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const unreadNotificationsCount = notifications.filter(n => !n.read).length;
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -37,23 +39,9 @@ const Header = ({ onMenuClick }) => {
     }
   };
 
-  const handleNotifications = () => {
-    toast({
-      title: "Bildirimler",
-      description: "🚧 Bu özellik henüz uygulanmadı—ama merak etme! Bir sonraki istekte talep edebilirsin! 🚀",
-    });
-  };
-
-  const handleSettings = () => {
-    toast({
-      title: "Ayarlar",
-      description: "🚧 Bu özellik henüz uygulanmadı—ama merak etme! Bir sonraki istekte talep edebilirsin! 🚀",
-    });
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/';
+  const handleLogout = () => {
+    logout();
+    navigate('/giris');
   };
 
   return (
@@ -62,7 +50,6 @@ const Header = ({ onMenuClick }) => {
       animate={{ y: 0, opacity: 1 }}
       className="header-gradient h-16 px-6 flex items-center justify-between"
     >
-      {/* Sol Taraf */}
       <div className="flex items-center space-x-4">
         <Button
           variant="ghost"
@@ -73,7 +60,6 @@ const Header = ({ onMenuClick }) => {
           <Menu className="w-5 h-5" />
         </Button>
 
-        {/* Arama */}
         <form onSubmit={handleSearch} className="hidden md:block">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -88,29 +74,21 @@ const Header = ({ onMenuClick }) => {
         </form>
       </div>
 
-      {/* Sağ Taraf */}
       <div className="flex items-center space-x-4">
-        {/* Bildirimler */}
         <Button
           variant="ghost"
           size="icon"
-          onClick={handleNotifications}
+          onClick={() => navigate('/bildirimler')}
           className="relative"
         >
           <Bell className="w-5 h-5" />
-          <span className="notification-dot"></span>
+          {unreadNotificationsCount > 0 && (
+            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+              {unreadNotificationsCount}
+            </span>
+          )}
         </Button>
 
-        {/* Ayarlar */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleSettings}
-        >
-          <Settings className="w-5 h-5" />
-        </Button>
-
-        {/* Kullanıcı Menüsü */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center space-x-2 px-3">
@@ -126,18 +104,11 @@ const Header = ({ onMenuClick }) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              <div className="flex items-center space-x-2">
-                <User className="w-4 h-4" />
-                <span>Hesabım</span>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Shield className="w-4 h-4 mr-2" />
-              <span>Güvenlik Ayarları</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profil')}>
+                  <User className="w-4 h-4 mr-2" />
+                  <span>Profil</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-red-400">
               <LogOut className="w-4 h-4 mr-2" />
               <span>Çıkış Yap</span>
