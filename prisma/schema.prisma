@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Workspace {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  slug      String    @unique
+  imageUrl  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  boards    Board[]
+  logs      AuditLog[]
+}
+
+model Board {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  title         String
+  imageId       String
+  imageThumbUrl String
+  imageFullUrl  String
+  imageUserName String
+  imageLinkHTML String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lists         List[]
+  workspace     Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model List {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int
+  boardId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cards     Card[]
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@index([boardId])
+}
+
+model Card {
+  id              String    @id @default(cuid())
+  title           String
+  order           Int
+  description     String?
+  listId          String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  list            List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  CardSubscription CardSubscription[]
+
+  @@index([listId])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  workspaceId String
+  entityId    String
+  entityType  String
+  entityTitle String
+  action      String   // e.g., "CREATE", "UPDATE", "DELETE"
+  userId      String
+  userImage   String
+  userName    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model CardSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  cardId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cardId])
+  @@index([cardId])
+}
