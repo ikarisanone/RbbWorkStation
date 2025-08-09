@@ -22,7 +22,7 @@ function App() {
       <AuthProvider>
         <DataProvider>
           <Helmet>
-            <title>Proje Kalkanı - Güvenli Proje Yönetimi</title>
+            <title>Rbb Proje Yönetimi</title>
             <meta name="description" content="Yüksek güvenlikli, esnek rol yönetimi ile donatılmış modern proje yönetimi platformu. Asana tarzında güçlü özellikler." />
           </Helmet>
           
